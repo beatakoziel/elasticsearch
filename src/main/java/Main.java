@@ -11,6 +11,8 @@ import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -43,7 +45,7 @@ public class Main {
                         addElementToDatabase(client);
                         break;
                     case 2:
-                        // editElement(playersMap, clubsMap);
+                        editElement(client);
                         break;
                     case 3:
                         getElementById(client);
@@ -84,7 +86,7 @@ public class Main {
                                 return p;
                             })
                             .collect(Collectors.toList())
-                        .forEach(System.out::println);
+                            .forEach(System.out::println);
                     break;
                 case 2:
                     Arrays.stream(searchHits)
@@ -167,32 +169,50 @@ public class Main {
         } else System.out.println("Wrong number, choose again.");
     }
 
-/*    private static void editElement(IgniteCache<UUID, Player> players, IgniteCache<UUID, SportClub> clubs) {
+    private static void editElement(RestHighLevelClient client) {
         System.out.println("Editing");
         Integer s = printSubMenu();
         Scanner scanner = new Scanner(System.in);
+        System.out.println("Write id:");
+        String id = scanner.next();
         if (s > 0 && s < 3) {
-            System.out.println("Write id:");
             switch (s) {
                 case 1:
-                    String playerId = scanner.next();
-                    if (isValidUUID(playerId) && players.containsKey(UUID.fromString(playerId))) {
-                        Player player = getPlayerFromUser(clubs, scanner);
-                        players.put(UUID.fromString(playerId), player);
-                        System.out.println(playerId + " => " + player.toString());
-                    } else System.out.printf("Player with id %s not found.%n", playerId);
+                    Player player = getPlayerFromUser(scanner);
+                    XContentBuilder builder = null;
+                    try {
+                        builder = XContentFactory.jsonBuilder()
+                                .startObject()
+                                .field("firstname", player.getFirstname())
+                                .field("surname", player.getSurname())
+                                .field("salary", player.getSalary())
+                                .endObject();
+                        UpdateRequest indexRequest = new UpdateRequest("players", id);
+                        indexRequest.doc(builder);
+                        UpdateResponse response = client.update(indexRequest, RequestOptions.DEFAULT);
+                        System.out.println(response.getResult());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     break;
                 case 2:
-                    String clubId = scanner.next();
-                    if (isValidUUID(clubId) && clubs.containsKey(UUID.fromString(clubId))) {
-                        SportClub sportClub = getSportClub(scanner);
-                        clubs.put(UUID.fromString(clubId), sportClub);
-                        System.out.println(clubId + " => " + sportClub.toString());
-                    } else System.out.printf("Club with id %s not found.%n", clubId);
+                    SportClub sportClub = getSportClub(scanner);
+                    try {
+                        builder = XContentFactory.jsonBuilder()
+                                .startObject()
+                                .field("name", sportClub.getName())
+                                .endObject();
+                        UpdateRequest indexRequest = new UpdateRequest("clubs", id);
+                        indexRequest.doc(builder);
+                        UpdateResponse response = client.update(indexRequest, RequestOptions.DEFAULT);
+                        System.out.println(response.getResult());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     break;
             }
         } else System.out.println("Wrong number, choose again.");
-    }*/
+    }
 
     private static void removeElement(RestHighLevelClient client) {
         System.out.println("Removing");
