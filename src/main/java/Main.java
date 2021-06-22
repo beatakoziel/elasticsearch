@@ -10,11 +10,14 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.data.elasticsearch.client.ClientConfiguration;
 import org.springframework.data.elasticsearch.client.RestClients;
 
@@ -55,7 +58,7 @@ public class Main {
                         //calculateAveragePlayerSalary(playersMap);
                         break;
                     case 7:
-                        //getElementByName(playersMap, clubsMap);
+                        getElementByName(client);
                         break;
                 }
                 System.out.println("Press enter to continue...");
@@ -124,28 +127,45 @@ public class Main {
         } else System.out.println("Wrong number, choose again.");
     }
 
-/*    private static void getElementByName(RestHighLevelClient client) throws IOException {
+    private static void getElementByName(RestHighLevelClient client) throws IOException {
         System.out.println("Getting by name");
         Integer s = printSubMenu();
         Scanner scanner = new Scanner(System.in);
+        System.out.println("Write name:");
+        String name = scanner.next();
+        SearchSourceBuilder builder = new SearchSourceBuilder()
+                .postFilter(QueryBuilders.matchQuery("firstname", name));
+
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.searchType(SearchType.DFS_QUERY_THEN_FETCH);
+        searchRequest.source(builder);
+        SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
+        SearchHit[] searchHits = response.getHits().getHits();
         if (s > 0 && s < 3) {
-            System.out.println("Write name:");
             switch (s) {
                 case 1:
-                    String playerName = scanner.next();
-                    ScanQuery<UUID, Player> scan = new ScanQuery<>((IgniteBiPredicate<UUID, Player>) (uuid, c) -> c.getFirstname().equals(playerName));
-                    QueryCursor<Cache.Entry<UUID, Player>> playersCollection = players.query(scan);
-                    playersCollection.forEach(player -> System.out.println(player.getValue()));
+                    Arrays.stream(searchHits)
+                            .map(hit -> {
+                                Player p = JSON.parseObject(hit.getSourceAsString(), Player.class);
+                                p.setId(hit.getId());
+                                return p;
+                            })
+                            .collect(Collectors.toList())
+                            .forEach(System.out::println);
                     break;
                 case 2:
-                    String clubName = scanner.next();
-                    ScanQuery<UUID, SportClub> clubsScan = new ScanQuery<>((IgniteBiPredicate<UUID, SportClub>) (uuid, c) -> c.getName().equals(clubName));
-                    QueryCursor<Cache.Entry<UUID, SportClub>> clubsCollection = clubs.query(clubsScan);
-                    clubsCollection.forEach(player -> System.out.println(player.getValue()));
+                    Arrays.stream(searchHits)
+                            .map(hit -> {
+                                SportClub p = JSON.parseObject(hit.getSourceAsString(), SportClub.class);
+                                p.setId(hit.getId());
+                                return p;
+                            })
+                            .collect(Collectors.toList())
+                            .forEach(System.out::println);
                     break;
             }
         } else System.out.println("Wrong number, choose again.");
-    }*/
+    }
 
 /*    private static void editElement(IgniteCache<UUID, Player> players, IgniteCache<UUID, SportClub> clubs) {
         System.out.println("Editing");
