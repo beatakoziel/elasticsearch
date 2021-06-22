@@ -1,7 +1,7 @@
 
 import com.alibaba.fastjson.JSON;
-import models.Player;
-import models.SportClub;
+import models.Employee;
+import models.Movie;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetRequest;
@@ -57,7 +57,7 @@ public class Main {
                         removeElement(client);
                         break;
                     case 6:
-                        //calculateAveragePlayerSalary(playersMap);
+                        //calculateAverageemployeesalary(employeesMap);
                         break;
                     case 7:
                         getElementByName(client);
@@ -81,7 +81,7 @@ public class Main {
                 case 1:
                     Arrays.stream(searchHits)
                             .map(hit -> {
-                                Player p = JSON.parseObject(hit.getSourceAsString(), Player.class);
+                                Employee p = JSON.parseObject(hit.getSourceAsString(), Employee.class);
                                 p.setId(hit.getId());
                                 return p;
                             })
@@ -91,7 +91,7 @@ public class Main {
                 case 2:
                     Arrays.stream(searchHits)
                             .map(hit -> {
-                                SportClub p = JSON.parseObject(hit.getSourceAsString(), SportClub.class);
+                                Movie p = JSON.parseObject(hit.getSourceAsString(), Movie.class);
                                 p.setId(hit.getId());
                                 return p;
                             })
@@ -111,7 +111,7 @@ public class Main {
             switch (s) {
                 case 1:
                     String playerId = scanner.next();
-                    GetRequest getRequest = new GetRequest("players");
+                    GetRequest getRequest = new GetRequest("employees");
                     getRequest.id(playerId);
 
                     GetResponse getResponse = client.get(getRequest, RequestOptions.DEFAULT);
@@ -119,7 +119,7 @@ public class Main {
                     break;
                 case 2:
                     String clubId = scanner.next();
-                    GetRequest getClubRequest = new GetRequest("clubs");
+                    GetRequest getClubRequest = new GetRequest("movies");
                     getClubRequest.id(clubId);
 
                     GetResponse getResponseClubs = client.get(getClubRequest, RequestOptions.DEFAULT);
@@ -148,7 +148,7 @@ public class Main {
                 case 1:
                     Arrays.stream(searchHits)
                             .map(hit -> {
-                                Player p = JSON.parseObject(hit.getSourceAsString(), Player.class);
+                                Employee p = JSON.parseObject(hit.getSourceAsString(), Employee.class);
                                 p.setId(hit.getId());
                                 return p;
                             })
@@ -158,7 +158,7 @@ public class Main {
                 case 2:
                     Arrays.stream(searchHits)
                             .map(hit -> {
-                                SportClub p = JSON.parseObject(hit.getSourceAsString(), SportClub.class);
+                                Movie p = JSON.parseObject(hit.getSourceAsString(), Movie.class);
                                 p.setId(hit.getId());
                                 return p;
                             })
@@ -178,16 +178,16 @@ public class Main {
         if (s > 0 && s < 3) {
             switch (s) {
                 case 1:
-                    Player player = getPlayerFromUser(scanner);
+                    Employee employee = getPlayerFromUser(scanner);
                     XContentBuilder builder = null;
                     try {
                         builder = XContentFactory.jsonBuilder()
                                 .startObject()
-                                .field("firstname", player.getFirstname())
-                                .field("surname", player.getSurname())
-                                .field("salary", player.getSalary())
+                                .field("firstname", employee.getFirstname())
+                                .field("surname", employee.getSurname())
+                                .field("salary", employee.getSalary())
                                 .endObject();
-                        UpdateRequest indexRequest = new UpdateRequest("players", id);
+                        UpdateRequest indexRequest = new UpdateRequest("employees", id);
                         indexRequest.doc(builder);
                         UpdateResponse response = client.update(indexRequest, RequestOptions.DEFAULT);
                         System.out.println(response.getResult());
@@ -196,13 +196,13 @@ public class Main {
                     }
                     break;
                 case 2:
-                    SportClub sportClub = getSportClub(scanner);
+                    Movie movie = getSportClub(scanner);
                     try {
                         builder = XContentFactory.jsonBuilder()
                                 .startObject()
-                                .field("name", sportClub.getName())
+                                .field("name", movie.getName())
                                 .endObject();
-                        UpdateRequest indexRequest = new UpdateRequest("clubs", id);
+                        UpdateRequest indexRequest = new UpdateRequest("movies", id);
                         indexRequest.doc(builder);
                         UpdateResponse response = client.update(indexRequest, RequestOptions.DEFAULT);
                         System.out.println(response.getResult());
@@ -223,7 +223,7 @@ public class Main {
             switch (s) {
                 case 1:
                     String playerId = scanner.next();
-                    DeleteRequest deleteRequest = new DeleteRequest("players");
+                    DeleteRequest deleteRequest = new DeleteRequest("employees");
                     deleteRequest.id(playerId);
 
                     try {
@@ -235,7 +235,7 @@ public class Main {
                     break;
                 case 2:
                     String clubId = scanner.next();
-                    DeleteRequest deleteClubRequest = new DeleteRequest("clubs");
+                    DeleteRequest deleteClubRequest = new DeleteRequest("movies");
                     deleteClubRequest.id(clubId);
 
                     try {
@@ -266,16 +266,16 @@ public class Main {
         if (s > 0 && s < 3) {
             switch (s) {
                 case 1:
-                    Player player = getPlayerFromUser(scanner);
+                    Employee employee = getPlayerFromUser(scanner);
                     XContentBuilder builder = null;
                     try {
                         builder = XContentFactory.jsonBuilder()
                                 .startObject()
-                                .field("firstname", player.getFirstname())
-                                .field("surname", player.getSurname())
-                                .field("salary", player.getSalary())
+                                .field("firstname", employee.getFirstname())
+                                .field("surname", employee.getSurname())
+                                .field("salary", employee.getSalary())
                                 .endObject();
-                        IndexRequest indexRequest = new IndexRequest("players");
+                        IndexRequest indexRequest = new IndexRequest("employees");
                         indexRequest.source(builder);
                         IndexResponse response = client.index(indexRequest, RequestOptions.DEFAULT);
                         System.out.println(response.getResult());
@@ -284,13 +284,13 @@ public class Main {
                     }
                     break;
                 case 2:
-                    SportClub sportClub = getSportClub(scanner);
+                    Movie movie = getSportClub(scanner);
                     try {
                         builder = XContentFactory.jsonBuilder()
                                 .startObject()
-                                .field("name", sportClub.getName())
+                                .field("name", movie.getName())
                                 .endObject();
-                        IndexRequest indexRequest = new IndexRequest("clubs");
+                        IndexRequest indexRequest = new IndexRequest("movies");
                         indexRequest.source(builder);
                         IndexResponse response = client.index(indexRequest, RequestOptions.DEFAULT);
                         System.out.println(response.getResult());
@@ -302,52 +302,52 @@ public class Main {
         } else System.out.println("Wrong number, choose again.");
     }
 
-/*    private static void calculateAveragePlayerSalary(IgniteCache<UUID, Player> players) {
+/*    private static void calculateAverageemployeesalary(IgniteCache<UUID, Player> employees) {
         System.out.println("Calculate average salary");
-        List<Player> playersList = new ArrayList<>();
-        for (Cache.Entry<UUID, Player> player : players) {
-            playersList.add(player.getValue());
+        List<Player> employeesList = new ArrayList<>();
+        for (Cache.Entry<UUID, Player> player : employees) {
+            employeesList.add(player.getValue());
         }
-        double averageSalary = playersList.stream()
+        double averageSalary = employeesList.stream()
                 .mapToDouble(Player::getSalary)
                 .average()
                 .orElse(0);
         System.out.println("Average player salary: " + averageSalary);
     }*/
 
-    private static SportClub getSportClub(Scanner scanner) {
+    private static Movie getSportClub(Scanner scanner) {
         System.out.println("Write club name:");
         String name = scanner.next();
         System.out.println("Write creation year:");
         Integer creationYear = scanner.nextInt();
-        return SportClub.builder()
+        return Movie.builder()
                 .name(name)
                 .build();
     }
 
-    private static Player getPlayerFromUser(Scanner scanner) {
-        System.out.println("Write player first name:");
+    private static Employee getPlayerFromUser(Scanner scanner) {
+        System.out.println("Write employee first name:");
         String firstname = scanner.next();
-        System.out.println("Write player surname:");
+        System.out.println("Write employee surname:");
         String surname = scanner.next();
-        System.out.println("Write player salary:");
-        Integer playerSalary = scanner.nextInt();
-        return Player.builder()
+        System.out.println("Write employee salary:");
+        Integer employeesalary = scanner.nextInt();
+        return Employee.builder()
                 .firstname(firstname)
                 .surname(surname)
-                .salary(playerSalary)
+                .salary(employeesalary)
                 .build();
     }
 
     private static Integer printMenu() {
-        System.out.println("\nSPORTS CLUB - IGNITE");
+        System.out.println("\nCINEMA - ELASTICSEARCH");
         System.out.println("\nChoose operation:");
         System.out.println("1.ADD");
         System.out.println("2.EDIT");
         System.out.println("3.GET BY ID");
         System.out.println("4.GET ALL");
         System.out.println("5.REMOVE");
-        System.out.println("6.CALCULATE AVERAGE PLAYER SALARY");
+        System.out.println("6.CALCULATE AVERAGE EMPLOYEE SALARY");
         System.out.println("7.GET BY NAME");
         Scanner scan = new Scanner(System.in);
         return scan.nextInt();
@@ -355,8 +355,8 @@ public class Main {
 
     private static Integer printSubMenu() {
         System.out.println("\nChoose table:");
-        System.out.println("1.PLAYERS");
-        System.out.println("2.SPORT CLUBS");
+        System.out.println("1.EMPLOYEES");
+        System.out.println("2.MOVIES");
         Scanner scan = new Scanner(System.in);
         return scan.nextInt();
     }

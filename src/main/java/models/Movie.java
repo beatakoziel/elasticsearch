@@ -10,7 +10,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class SportClub implements Serializable {
+public class Movie implements Serializable {
     private String id;
     private String name;
 }
