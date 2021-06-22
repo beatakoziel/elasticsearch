@@ -12,5 +12,4 @@ import java.io.Serializable;
 @ToString
 public class SportClub implements Serializable {
     private String name;
-    private Integer creationYear;
 }
