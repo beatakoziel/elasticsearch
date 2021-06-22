@@ -11,6 +11,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @ToString
 public class Player implements Serializable {
+    private String id;
     private String firstname;
     private String surname;
     private Integer salary;

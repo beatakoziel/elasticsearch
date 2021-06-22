@@ -11,5 +11,6 @@ import java.io.Serializable;
 @AllArgsConstructor
 @ToString
 public class SportClub implements Serializable {
+    private String id;
     private String name;
 }

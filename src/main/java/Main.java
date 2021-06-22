@@ -14,7 +14,6 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
-import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.search.SearchHit;
 import org.springframework.data.elasticsearch.client.ClientConfiguration;
 import org.springframework.data.elasticsearch.client.RestClients;
@@ -76,13 +75,21 @@ public class Main {
             switch (s) {
                 case 1:
                     Arrays.stream(searchHits)
-                            .map(hit -> JSON.parseObject(hit.getSourceAsString(), Player.class))
+                            .map(hit -> {
+                                Player p = JSON.parseObject(hit.getSourceAsString(), Player.class);
+                                p.setId(hit.getId());
+                                return p;
+                            })
                             .collect(Collectors.toList())
-                            .forEach(System.out::println);
+                        .forEach(System.out::println);
                     break;
                 case 2:
                     Arrays.stream(searchHits)
-                            .map(hit -> JSON.parseObject(hit.getSourceAsString(), SportClub.class))
+                            .map(hit -> {
+                                SportClub p = JSON.parseObject(hit.getSourceAsString(), SportClub.class);
+                                p.setId(hit.getId());
+                                return p;
+                            })
                             .collect(Collectors.toList())
                             .forEach(System.out::println);
                     break;
